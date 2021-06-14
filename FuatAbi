@@ -1,0 +1,267 @@
+import random
+import sys
+import os
+from prettytable import PrettyTable
+
+       
+def Karte_Erstellen(höhe,breite,liste):
+        Karte = { 
+
+            } 
+        for x in range(0,höhe):
+            Karte[str(x+1)]=[random.choices(liste,k=breite)]
+        for Zahl in Karte:
+            if Zahl =='3':
+                if höhe==5 and breite==5:
+                    Karte[Zahl][0][2] = "🃏"
+            elif Zahl=='4':
+                if höhe==7 and breite==7:
+                    Karte[Zahl][0][3] = "🃏"
+       
+        return Karte
+
+def Karte_Ausgeben(Karte):
+    if höhe==3 & breite==3:
+        t = PrettyTable(['1', '2', '3'])
+    elif höhe==5 & breite==5:
+       t = PrettyTable(['1', '2', '3', '4', '5'])
+    elif höhe==7 & breite==7:
+        t = PrettyTable(['1', '2', '3', '4', '5', '6', '7'])
+
+    for Zahl in Karte:
+        
+        #print('\t')
+        #print(Zahl,end=':\t')
+        t.add_row((Karte[Zahl][0]))
+    print(t)
+
+
+def gezogenes_wort(Karte, liste):
+
+    wort_ziehen = random.choice(liste)
+    for Zahl in Karte:
+        y = 0
+        for wort in Karte[Zahl][0]:
+            if wort == wort_ziehen:
+                Karte[Zahl][0][y] = "X"
+            y += 1
+            
+    return wort_ziehen     
+
+def Prüfen(Karte,höhe,breite):
+
+    sieg = False
+    #Zunächst werden die horizontalen Gewinne nachgeprüft
+    
+    for Zahl in Karte:
+        counter = 0   
+        for x in range(0,int(höhe)):
+            if Karte[Zahl][0][x]=='X':
+                counter+= 1
+            
+        if counter is int(höhe):
+            sieg = True
+            return sieg
+            
+    #jetzt werden die vertikalen Gewinne nachgeprüft
+    for x in range(0,int(höhe)):
+        counter=0
+
+        for Zahl in Karte:
+            if Karte[Zahl][0][x]=='X':
+                counter+=1
+        if counter==int(höhe):
+            sieg=True
+            return sieg
+
+    #jetzt werden die diagonalen Gewinne nachgeprüft
+    for x in range (0,int(höhe)):
+        y=0
+        counter=0
+        for Zahl in Karte:
+            if Karte[Zahl][0][y]=='X':
+                counter+=1
+            y+=1
+        if counter==int(höhe):
+            sieg=True
+            return sieg
+
+    for x in range (int(höhe),-1,-1):
+        y=int(höhe)-1
+        counter=0
+        for Zahl in Karte:
+            if Karte[Zahl][0][y]=='X':
+                counter+=1
+            y-=1
+        if counter==int(höhe):
+            sieg=True
+        return sieg
+
+
+def restart():
+    print("Spiel startet neu aufgrund von eines FehlInputs" + "\n" + "------------------------" + "\n")
+    os.execv(sys.executable, ['python'] + sys.argv) 
+def restarthöhebreite():
+    print("Spiel startet neu aufgrund von eines FehlInputs")
+    print("Bitte geben sie nur 3 x 3, 5 x 5, 7 x 7 ein" + "\n" + "------------------------" + "\n")
+    os.execv(sys.executable, ['python'] + sys.argv) 
+
+
+#Mainmethode
+print(""" 
+ ____                                       _   ____  _                   
+|  _ \                                     | | |  _ \(_)                  
+| |_) |_   _ __________      _____  _ __ __| | | |_) |_ _ __   __ _  ___  
+|  _ <| | | |_  /_  /\ \ /\ / / _ \| '__/ _` | |  _ <| | '_ \ / _` |/ _ \ 
+| |_) | |_| |/ / / /  \ V  V / (_) | | | (_| | | |_) | | | | | (_| | (_) |
+|____/ \__,_/___/___|  \_/\_/ \___/|_|  \__,_| |____/|_|_| |_|\__, |\___/ 
+                                                               __/ |      
+Fuat, Duc und Niraj                                           |___/       """)   
+datei = open('text.txt','r')
+liste=[]
+liste = datei.read().split(';')
+
+#Fehlererkennung bei Userinput#
+while True:
+    try:
+        höhe=int(input("\n" + "Geben sie die Höhe der Bingokarte ein:" + "\n"))
+        breite=int(input('Geben sie die Breite der Bingokarte ein:' + "\n"))
+        acceptable_values = list((3, 5, 7))
+        if höhe and breite in acceptable_values and höhe == breite:
+            break
+        else:
+            restarthöhebreite()
+    except ValueError:
+        print("\n" + "Bitte geben Sie NUR die Ziffern ein. Versuchen sie es erneut")
+        print("Das Spiel wird neugestartet" + "\n")
+        restart()
+
+while True:
+    try:
+        modi = int(input('''Wählen sie zwischen Zwei Spiel Modi aus Tippen sie die jeweilige Zahl ein:
+        
+1: Einzelspieler
+2: Mehrspieler''' + "\n"))
+
+        break
+        
+    except ValueError:
+        print("\n" + "Bitte geben Sie NUR die Ziffern 1 oder 2 ein und kein Buchstabe. Versuchen sie es erneut")
+        restart() 
+
+#################
+
+spielfeld=[]
+
+
+if modi == 1:
+    einzelspieler = Karte_Erstellen(höhe,breite,liste)
+    spielfeld.append(einzelspieler)
+    anzahl_spieler = 1
+    for x in range(0,anzahl_spieler):
+        Karte_Ausgeben(spielfeld[x])   
+            
+elif modi==2: 
+    anzahl_spieler=input('Bitte geben Sie an, wie viele Personen am Bingospiel teilnehmen möchten!'+ "\n")
+    for x in range(0,int(anzahl_spieler)):
+        spielfeld.append(Karte_Erstellen(höhe,breite,liste))
+    if höhe==3 & breite==3:
+        t = PrettyTable(['1', '2', '3'])
+    elif höhe==5 & breite==5:
+       t = PrettyTable(['1', '2', '3', '4', '5'])
+    elif höhe==7 & breite==7:
+        t = PrettyTable(['1', '2', '3', '4', '5', '6', '7'])
+
+    
+
+
+    for x in range(1,int(anzahl_spieler)):
+        f = open("Karte"+str(x+2), 'w')#karten erzeugt
+        Karte=spielfeld[x]
+        
+        for Zahl in Karte:
+
+            t.add_row(Karte[Zahl][0])
+        f.write(str(t))
+
+        for Zahl in Karte:
+            for Zahl in range(0,1):
+                t.del_row(Zahl)
+            
+      
+        
+        f.close
+    
+    print('''
+Das Spiel beginnt jetzt!
+ES wird immer wieder aus einer Liste Wörter gezogen, und wenn diese
+in deiner Bingokarte vorkommen, so werden diese durch ein X ersetzt.
+
+    ''')
+
+    sieg=False
+    for x in range(0,int(anzahl_spieler)):
+        print("\nDrücke Enter um ein neues Wort zu ziehen.\nZum Beenden, schribe bitte quit.\n")
+        user_input = input()
+        words_till_win = 0
+
+        while sieg == False and user_input != "quit":
+            wort_ziehen = gezogenes_wort(spielfeld[x], liste)
+            words_till_win += 1
+            liste.remove(wort_ziehen)
+            
+
+            print(f"\nGezogenes Wort: {wort_ziehen}.")
+            print(f"Anzahl an gezogenen Wörtern: {words_till_win}.\n\n\n")
+            
+            user_input=input()
+            if user_input=='quit':
+                print('Vielen Dank fürs Mitspielen!')
+                quit()
+
+
+elif modi != 1 or 2:
+
+    print("\n" + "Bitte geben Sie NUR die Ziffern 1 oder 2 ein. Versuchen sie es erneut")
+    print("Das Spiel wird neugestartet" + "\n")
+    restart() 
+
+
+    
+
+print('''
+    Nun beginnt das Spiel!
+    ES wird immer wieder aus einer Liste Wörter gezogen, und wenn diese
+    in deiner Bingokarte vorkommen, so werden diese durch ein X ersetzt.
+
+    ''')
+
+sieg = False
+
+
+for x in range(0,int(anzahl_spieler)):
+        print("\nDrücke Enter um ein neues Wort zu ziehen.\nZum Beenden, schribe bitte quit.\n")
+        user_input = input()
+        sieg=Prüfen(spielfeld[x],int(höhe),int(breite))
+        words_till_win = 0
+
+        while not sieg and user_input != "quit":
+            wort_ziehen = gezogenes_wort(spielfeld[x], liste)
+            words_till_win += 1
+            liste.remove(wort_ziehen)
+            
+
+            print(f"\nGezogenes Wort: {wort_ziehen}.")
+            print(f"Anzahl der gezogenen Wörtern: {words_till_win}.\n")
+            Karte_Ausgeben(spielfeld[x])
+
+            sieg=Prüfen(spielfeld[x],int(höhe),int(breite))
+
+
+            if sieg==True:
+                print(f"\nSie haben Gewonnen!\nSoviele Wörter wurden gezogen: {words_till_win}.")
+            
+            user_input=input()
+            if user_input=='quit':
+                print('Das Spiel wurde vom Benutzer beendet')
+                quit()
